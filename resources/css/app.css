@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/*
+| Design system Life Academy
+|
+| A paleta parte do azul institucional do site atual (#142850) e ganha uma
+| escala completa, mais um âmbar quente para as chamadas de ação — o site
+| antigo usava roxo do tema padrão do WooCommerce, que não era da marca.
+*/
+@theme {
+  --color-navy-50:  #f0f4fa;
+  --color-navy-100: #dbe4f3;
+  --color-navy-200: #bccfe9;
+  --color-navy-300: #8eb0da;
+  --color-navy-400: #5988c6;
+  --color-navy-500: #376bb0;
+  --color-navy-600: #275494;
+  --color-navy-700: #214578;
+  --color-navy-800: #1f3b64;
+  --color-navy-900: #142850;
+  --color-navy-950: #0d1a35;
+
+  --color-ember-50:  #fff8ed;
+  --color-ember-100: #ffefd4;
+  --color-ember-200: #ffdaa8;
+  --color-ember-300: #ffbf71;
+  --color-ember-400: #ff9a38;
+  --color-ember-500: #ff7d12;
+  --color-ember-600: #f06106;
+  --color-ember-700: #c74807;
+  --color-ember-800: #9e390e;
+  --color-ember-900: #7f310f;
+
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+  --radius-4xl: 2rem;
+
+  --shadow-lift: 0 1px 2px rgb(20 40 80 / 0.06), 0 12px 32px -8px rgb(20 40 80 / 0.14);
+  --shadow-lift-lg: 0 2px 4px rgb(20 40 80 / 0.06), 0 28px 60px -12px rgb(20 40 80 / 0.22);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-navy-950 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Alvo do scroll fica abaixo do header fixo. */
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
+  ::selection {
+    @apply bg-navy-900 text-white;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ember-500;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  /* Base compartilhada: o Tailwind 4 não deixa dar @apply numa classe
+     customizada, então as variantes entram no mesmo seletor. */
+  .btn,
+  .btn-primary,
+  .btn-navy,
+  .btn-outline,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold
+           transition duration-200 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply bg-ember-500 text-white shadow-lift hover:bg-ember-600 hover:shadow-lift-lg active:translate-y-px;
+  }
+
+  .btn-navy {
+    @apply bg-navy-900 text-white shadow-lift hover:bg-navy-800 active:translate-y-px;
+  }
+
+  .btn-outline {
+    @apply border border-navy-200 bg-white text-navy-900 hover:border-navy-400 hover:bg-navy-50;
+  }
+
+  .btn-ghost {
+    @apply text-navy-700 hover:bg-navy-50;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.18em] text-ember-600;
+  }
+
+  .heading-xl {
+    @apply text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl;
+    font-family: var(--font-display);
+  }
+
+  .heading-lg {
+    @apply text-3xl leading-tight font-semibold tracking-tight sm:text-4xl;
+    font-family: var(--font-display);
+  }
+
+  .heading-md {
+    @apply text-2xl leading-tight font-semibold tracking-tight sm:text-3xl;
+    font-family: var(--font-display);
+  }
+
+  .prose-site {
+    @apply text-base leading-relaxed text-navy-700;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-navy-200 bg-white px-4 py-3 text-navy-950
+           placeholder:text-navy-300 focus:border-navy-500 focus:ring-2 focus:ring-navy-100 focus:outline-none;
+  }
+
+  .field-error {
+    @apply border-red-400 focus:border-red-500 focus:ring-red-100;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-navy-800;
+  }
+
+  .card {
+    @apply rounded-3xl border border-navy-100 bg-white shadow-lift;
+  }
+
+  /* Malha sutil para as seções escuras, no lugar de um bloco chapado. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Entrada suave ao rolar; quem pediu menos movimento não recebe nenhum. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
