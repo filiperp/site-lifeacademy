@@ -51,9 +51,19 @@ class Order extends Model
         return $this->status === self::STATUS_PAID;
     }
 
+    /**
+     * Um pedido reembolsado ou cancelado também precisa ser "entregue": é o
+     * mesmo canal que revoga o acesso na la-app, mudando o status enviado.
+     */
     public function needsDelivery(): bool
     {
-        return $this->isPaid() && $this->delivery_status !== self::DELIVERY_SENT;
+        $deliverable = in_array($this->status, [
+            self::STATUS_PAID,
+            self::STATUS_REFUNDED,
+            self::STATUS_CANCELED,
+        ], true);
+
+        return $deliverable && $this->delivery_status !== self::DELIVERY_SENT;
     }
 
     /**

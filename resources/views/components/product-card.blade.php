@@ -29,19 +29,15 @@
                 {{ __('site.product.learn_more') }}
             </a>
 
-            @unless ($product->hasVariants())
-                <form method="POST" action="{{ route('cart.add') }}" class="shrink-0">
-                    @csrf
-                    <input type="hidden" name="product" value="{{ $product->key }}">
-                    <input type="hidden" name="variant" value="{{ $variant->key }}">
-                    <button type="submit" class="btn-outline p-2.5" aria-label="{{ __('site.product.add_to_cart') }}">
-                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-                            <path d="M2.5 2.5h1.8l1.9 9.5h8.6l1.7-6.7H5.2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="7.5" cy="16" r="1.25"/><circle cx="14.5" cy="16" r="1.25"/>
-                        </svg>
-                    </button>
-                </form>
-            @endunless
+            {{-- Atalho direto para o checkout da Hotmart, só quando o produto
+                 tem uma variante única e a oferta já está cadastrada. Com
+                 variantes, a escolha precisa acontecer na página do produto. --}}
+            @if (! $product->hasVariants() && $variant->isSellable())
+                <a href="{{ $variant->checkoutUrl() }}" rel="noopener"
+                   class="btn-primary shrink-0 px-4 py-2.5 text-xs">
+                    {{ __('site.product.buy') }}
+                </a>
+            @endif
         </div>
     </div>
 </article>

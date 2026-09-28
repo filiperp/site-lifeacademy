@@ -78,7 +78,7 @@ class PurchaseGatewayTest extends TestCase
             'paid_at'        => now(),
             'billing_type'   => 'CREDIT_CARD',
             'installment_count' => 6,
-            'asaas_payment_id'  => 'pay_123456789',
+            'hotmart_transaction' => 'HP16015690036014',
         ], $overrides));
 
         foreach ($items as $item) {
@@ -176,7 +176,7 @@ class PurchaseGatewayTest extends TestCase
         $this->assertContains(strtoupper($payload['status']), ['COMPLETED', 'PROCESSING']);
 
         // As três colunas UNIQUE de woocommerce_purchases.
-        $this->assertSame('AS-LA-2026-000042', $payload['id']);
+        $this->assertSame('HM-LA-2026-000042', $payload['id']);
         $this->assertSame('LA-2026-000042', $payload['number']);
         $this->assertStringStartsWith('la_', $payload['order_key']);
         $this->assertNotSame($payload['id'], $payload['number']);
@@ -189,7 +189,7 @@ class PurchaseGatewayTest extends TestCase
         // net_price vem do total da raiz: o que foi realmente pago.
         $this->assertSame('197.00', $payload['total']);
         $this->assertSame('Cartão de crédito 6x', $payload['payment_method_title']);
-        $this->assertSame('pay_123456789', $payload['transaction_id']);
+        $this->assertSame('HP16015690036014', $payload['transaction_id']);
     }
 
     public function test_assinatura_hmac_confere_com_o_calculo_da_api(): void

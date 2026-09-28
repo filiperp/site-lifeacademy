@@ -1,7 +1,7 @@
 # Site Life Academy
 
 Recriação do site lifeacademy.pro em Laravel 13, substituindo o WordPress +
-WooCommerce + Elementor por uma loja própria com checkout parcelado no Asaas.
+WooCommerce + Elementor por uma vitrine própria com checkout na Hotmart.
 
 A entrega da compra continua sendo feita pela API existente (`la-app`), **sem
 nenhuma alteração nela**.
@@ -44,62 +44,69 @@ Nada disso está no repositório — preencha no `.env`.
 
 | Variável | Onde obter | Sem ela |
 |---|---|---|
-| `ASAAS_API_KEY` | Painel Asaas → Integrações → Chave de API (sandbox e produção são chaves diferentes) | O checkout não é criado; o cliente vê mensagem de erro |
-| `ASAAS_WEBHOOK_TOKEN` | Você escolhe ao cadastrar o webhook no painel do Asaas | O webhook é recusado em produção e nenhuma compra é confirmada |
-| `LA_WEBHOOK_SECRET` | O mesmo segredo usado hoje em `WooCommerceController::webhook()` da `la-app` | A assinatura não bate (hoje isso não bloqueia a API, mas vai bloquear se o HMAC passar a ser validado) |
+| `HOTMART_HOTTOK` | Painel Hotmart → Ferramentas → Webhook | O webhook não autentica e **nenhuma compra libera acesso** |
+| `HOTMART_CLIENT_ID` / `_SECRET` | Hotmart Developers → suas credenciais | `hotmart:sync` não roda; o webhook funciona sem |
+| `LA_WEBHOOK_SECRET` | O mesmo `WOOCOMMERCE_WEBHOOK_SECRET` da `la-app` | Toda compra é recusada pela API |
 | `LA_API_URL` | URL pública da `la-app` | Sem destino para a compra |
 
-O site **não guarda dado de cartão**. O pagamento acontece na página hospedada
-do Asaas, o que mantém o projeto fora do escopo de PCI-DSS.
+O site **não processa pagamento**. Cartão, Pix e boleto acontecem no checkout
+da Hotmart, que também define preço e parcelamento por oferta.
 
-### Webhook a cadastrar no painel do Asaas
+### Cadastro na Hotmart
+
+Cada variante do catálogo precisa de uma oferta:
 
 ```
-URL:    https://SEU-DOMINIO/webhooks/asaas
-Token:  o mesmo valor de ASAAS_WEBHOOK_TOKEN
-Versão: v3
-Eventos: PAYMENT_CONFIRMED, PAYMENT_RECEIVED, PAYMENT_REFUNDED,
-         PAYMENT_DELETED, CHECKOUT_PAID, CHECKOUT_CANCELED, CHECKOUT_EXPIRED
+Produto → Oferta → SKU = codenames unidos por "-"   (ex.: best-big5-talents)
 ```
 
----
+O SKU é o caminho mais robusto de mapeamento: o webhook o traz em
+`data.product.sku`, e com ele a compra é resolvida mesmo que alguém recrie a
+oferta com outro código. `product_code` e `offer_code` em `config/catalog.php`
+são o segundo caminho, e o que monta a URL do botão de compra.
+
+`php artisan integrations:check` lista o que ainda falta cadastrar.
+
+### Webhook a cadastrar no painel
+
+```
+URL:     https://SEU-DOMINIO/webhooks/hotmart
+Versão:  2.0.0
+Eventos: PURCHASE_APPROVED, PURCHASE_REFUNDED, PURCHASE_CHARGEBACK,
+         PURCHASE_CANCELED, PURCHASE_COMPLETE
+```
 
 ## Fluxo de compra
 
 ```
-Carrinho (sessão)
-   │
-   ▼
-POST /checkout ──► cria Order (status pending) ──► POST /v3/checkouts no Asaas
-   │                                                        │
-   │                                            devolve id + link do checkout
-   │                                                        │
-   └──────────── redirect para a página do Asaas ◄──────────┘
-                              │
-              cliente paga (cartão parcelado, Pix ou boleto)
-                              │
-       ┌──────────────────────┴───────────────────────┐
-       ▼                                              ▼
-POST /webhooks/asaas                        GET /checkout/{uuid}/retorno
-(confirma a compra)                         (só informativo; consulta o status)
-       │
-       ▼
-Order.status = paid
-       │
-       ▼
-DeliverPurchaseToLifeAcademy (fila, com retentativa)
-       │
-       ▼
-POST {LA_API_URL}/api/woocommerce/order   ← a API existente, sem alteração
-       │
-       ▼
-la-app: cria usuário, registra a compra, gera tokens e envia o e-mail
+Vitrine → Página do produto → [Comprar]
+                                  │
+                                  ▼
+                    pay.hotmart.com/<produto>?off=<oferta>
+                                  │
+                       cliente paga (cartão, Pix, boleto)
+                                  │
+              ┌───────────────────┴──────────────────┐
+              ▼                                      ▼
+   POST /webhooks/hotmart                   redirect para /obrigado
+   (cria o pedido e confirma)               (só informativo)
+              │
+              ▼
+   DeliverPurchaseToLifeAcademy (fila, com retentativa)
+              │
+              ▼
+   POST {LA_API_URL}/api/woocommerce/order   ← a API existente, sem alteração
+              │
+              ▼
+   la-app: cria usuário, registra a compra, gera tokens e envia o e-mail
 ```
 
-O que confirma a venda é o **webhook**, nunca o retorno do navegador — aquela
-URL pode ser aberta por qualquer pessoa.
+O fluxo inverte em relação a um gateway: **não existe pedido antes do webhook**.
+A compra acontece inteira na Hotmart, e a rota `/webhooks/hotmart` é a única
+fonte da venda — por isso ela valida o hottok antes de qualquer coisa.
 
----
+Um reembolso volta pelo mesmo caminho: `PURCHASE_REFUNDED` reenvia a compra à
+`la-app` com status `refunded`, e `cancelPurchase()` revoga os tokens.
 
 ## Por que a API não precisou mudar
 
@@ -112,11 +119,11 @@ O site monta exatamente esse corpo (`app/Services/LifeAcademy/PurchaseGateway.ph
 
 | Campo enviado | O que a API faz com ele |
 |---|---|
-| `id`, `number`, `order_key` | Colunas UNIQUE de `woocommerce_purchases`. Prefixamos com `AS-`/`la_` para nunca colidir com os IDs numéricos herdados do WooCommerce |
-| `status: completed` | `webhook()` só processa `COMPLETED` ou `PROCESSING` |
+| `id`, `number`, `order_key` | Colunas UNIQUE de `woocommerce_purchases`. Prefixamos com `HM-`/`la_` para nunca colidir com os IDs numéricos herdados do WooCommerce |
 | `total` | Vira `net_price` — o valor realmente pago |
 | `billing.{email,first_name,last_name,phone}` | `ProfileService::findOrCreate()` |
 | `line_items[].sku` | `createCart()` tira o `#`, deixa minúsculo e faz `explode('-')` — um item de carrinho por codename |
+| `status` | `completed` libera (a API só processa `COMPLETED`/`PROCESSING`); `refunded` e `cancelled` revogam o acesso |
 | `line_items[].subtotal` / `.total` | A API deriva o preço unitário de `subtotal/quantity` e o desconto de `(1 - total/subtotal) * 100` |
 
 `tests/Feature/PurchaseGatewayTest.php` contém uma **cópia literal** de
@@ -125,7 +132,7 @@ precisar da API no ar.
 
 ### Se um dia quiserem uma rota dedicada
 
-Basta apontar `LA_PURCHASE_ENDPOINT` para ela (ex.: `/api/asaas/order`). O
+Basta apontar `LA_PURCHASE_ENDPOINT` para ela (ex.: `/api/hotmart/order`). O
 formato do corpo não muda, então a rota nova pode reaproveitar
 `WooCommerceController::webhook()` inteiro.
 
@@ -153,6 +160,16 @@ enviado à API é essa lista unida por `-`.
 `php artisan catalog:check` avisa se algum codename não existe ou está
 soft-deleted na `la-app` — nos dois casos a compra entraria sem itens.
 
+### Preço
+
+Quem define o preço é a oferta na Hotmart. `php artisan hotmart:sync` lê as
+ofertas pela API e reescreve `config/catalog.php`, para o site não anunciar um
+valor e o checkout cobrar outro. Rode no deploy e num cron diário.
+
+Variações acima de `HOTMART_SYNC_ALERT_THRESHOLD` (25% por padrão) são
+sinalizadas em vez de aplicadas — uma queda de 90% costuma ser erro de
+cadastro, não promoção. `--force` aplica mesmo assim, `--dry-run` só mostra.
+
 ---
 
 ## Idiomas
@@ -179,7 +196,7 @@ php artisan queue:work --tries=8      # obrigatório
 ```
 
 `QUEUE_CONNECTION=sync` **não serve**: a entrega roda dentro da requisição do
-webhook e, se a `la-app` estiver fora do ar, o Asaas recebe erro e fica
+webhook e, se a `la-app` estiver fora do ar, a Hotmart recebe erro e fica
 reenviando o evento.
 
 Pedidos com `delivery_status = failed` são compras pagas que não chegaram à

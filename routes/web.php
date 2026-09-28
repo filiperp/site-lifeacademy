@@ -1,20 +1,21 @@
 <?php
 
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\Webhooks\AsaasWebhookController;
+use App\Http\Controllers\Webhooks\HotmartWebhookController;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Support\Facades\Route;
 
 /*
-| O webhook do Asaas fica fora do grupo web: sem sessão, sem CSRF e sem
+| O webhook da Hotmart fica fora do grupo web: sem sessão, sem CSRF e sem
 | resolução de idioma — é uma chamada servidor-a-servidor autenticada pelo
-| header asaas-access-token.
+| header X-HOTMART-HOTTOK.
+|
+| É esta rota que libera o acesso do comprador, já que a compra acontece
+| inteira no checkout da Hotmart e o site não participa do pagamento.
 */
-Route::post('/webhooks/asaas', AsaasWebhookController::class)
+Route::post('/webhooks/hotmart', HotmartWebhookController::class)
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
-    ->name('webhooks.asaas');
+    ->name('webhooks.hotmart');
 
 Route::middleware(SetLocale::class)->group(function () {
 
@@ -28,15 +29,12 @@ Route::middleware(SetLocale::class)->group(function () {
     Route::get('/teste-gratis', [PageController::class, 'freeTest'])->name('free-test');
     Route::get('/legal/{page}', [PageController::class, 'legal'])->name('legal');
 
-    Route::get('/carrinho', [CartController::class, 'show'])->name('cart');
-    Route::post('/carrinho', [CartController::class, 'add'])->name('cart.add');
-    Route::patch('/carrinho', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/carrinho', [CartController::class, 'remove'])->name('cart.remove');
-
-    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/{order}/retorno', [CheckoutController::class, 'return'])->name('checkout.return');
-    Route::get('/checkout/{order}/status', [CheckoutController::class, 'status'])->name('checkout.status');
+    /*
+    | Destino do "Página de obrigado" configurado na oferta da Hotmart. Não
+    | confirma nada: quem confirma é o webhook. Serve para o comprador não
+    | terminar a compra numa página da Hotmart sem saber o que fazer.
+    */
+    Route::get('/obrigado', [PageController::class, 'thanks'])->name('thanks');
 
     Route::get('/idioma/{locale}', function (string $locale) {
         abort_unless(in_array($locale, SetLocale::SUPPORTED, true), 404);

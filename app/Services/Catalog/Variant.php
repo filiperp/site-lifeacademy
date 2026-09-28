@@ -14,6 +14,8 @@ class Variant
         public readonly float $listPrice,
         public readonly float $price,
         public readonly bool $recommended,
+        public readonly ?string $productCode = null,
+        public readonly ?string $offerCode = null,
     ) {}
 
     public static function fromConfig(string $productKey, array $data): self
@@ -25,7 +27,31 @@ class Variant
             listPrice: (float) ($data['list_price'] ?? $data['price']),
             price: (float) $data['price'],
             recommended: (bool) ($data['recommended'] ?? false),
+            productCode: $data['product_code'] ?? null,
+            offerCode: $data['offer_code'] ?? null,
         );
+    }
+
+    /**
+     * A compra acontece inteira na Hotmart, então "comprar" é sair do site.
+     *
+     * Devolve null enquanto a oferta não estiver cadastrada — a view esconde o
+     * botão nesse caso, em vez de mandar o cliente para um link quebrado.
+     */
+    public function checkoutUrl(): ?string
+    {
+        if (! $this->productCode) {
+            return null;
+        }
+
+        $url = rtrim(config('hotmart.checkout_url'), '/').'/'.$this->productCode;
+
+        return $this->offerCode ? $url.'?off='.$this->offerCode : $url;
+    }
+
+    public function isSellable(): bool
+    {
+        return $this->checkoutUrl() !== null;
     }
 
     public function name(): string

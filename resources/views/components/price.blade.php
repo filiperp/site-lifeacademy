@@ -1,23 +1,24 @@
 @props([
     'variant',
     'size' => 'md',
-    'showInstallments' => true,
 ])
 
 @php
     use App\Support\Money;
 
-    $max = app(\App\Services\Asaas\CheckoutService::class)->maxInstallmentsFor($variant->price);
-    $installment = Money::installment($variant->price, $max);
-    $interestFree = config('asaas.installments.interest_bearer') === 'merchant';
-
     $sizes = [
-        'sm' => ['price' => 'text-xl', 'was' => 'text-xs', 'note' => 'text-xs'],
-        'md' => ['price' => 'text-3xl', 'was' => 'text-sm', 'note' => 'text-sm'],
-        'lg' => ['price' => 'text-4xl sm:text-5xl', 'was' => 'text-base', 'note' => 'text-sm'],
+        'sm' => ['price' => 'text-xl',           'was' => 'text-xs'],
+        'md' => ['price' => 'text-3xl',          'was' => 'text-sm'],
+        'lg' => ['price' => 'text-4xl sm:text-5xl', 'was' => 'text-base'],
     ][$size];
 @endphp
 
+{{--
+    Sem simulação de parcela. O parcelamento é configurado por oferta dentro da
+    Hotmart, e o site não tem como saber o número de parcelas nem se há juros —
+    anunciar "12x sem juros" daqui seria chutar. O valor das parcelas aparece no
+    checkout deles, que é onde a informação é verdadeira.
+--}}
 <div {{ $attributes->merge(['class' => 'space-y-1']) }}>
 
     @if ($variant->hasDiscount())
@@ -32,13 +33,4 @@
     <p class="{{ $sizes['price'] }} font-bold tracking-tight text-navy-950">
         {{ Money::format($variant->price) }}
     </p>
-
-    @if ($showInstallments && config('asaas.installments.enabled') && $max > 1)
-        <p class="{{ $sizes['note'] }} text-navy-600">
-            {{ __($interestFree ? 'site.price.installments_free' : 'site.price.installments', [
-                'count' => $max,
-                'value' => Money::format($installment),
-            ]) }}
-        </p>
-    @endif
 </div>

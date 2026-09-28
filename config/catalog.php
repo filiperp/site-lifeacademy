@@ -56,6 +56,8 @@ return [
             'variants'   => [
                 [
                     'key'        => 'default',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['big5'],
                     'list_price' => 247.70,
                     'price'      => 197.00,
@@ -72,6 +74,8 @@ return [
             'variants'   => [
                 [
                     'key'        => 'default',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['talents'],
                     'list_price' => 197.70,
                     'price'      => 157.56,
@@ -88,6 +92,8 @@ return [
             'variants'   => [
                 [
                     'key'        => 'with_maps',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['best', 'big5', 'talents'],
                     'list_price' => 997.70,
                     'price'      => 797.64,
@@ -95,6 +101,8 @@ return [
                 ],
                 [
                     'key'        => 'without_maps',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['best'],
                     'list_price' => 584.70,
                     'price'      => 467.16,
@@ -111,6 +119,8 @@ return [
             'variants'   => [
                 [
                     'key'        => 'with_maps',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['bestus', 'big5', 'talents'],
                     'list_price' => 612.70,
                     'price'      => 489.60,
@@ -118,12 +128,16 @@ return [
                 ],
                 [
                     'key'        => 'duo_without_maps',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['best', 'bestus'],
                     'list_price' => 612.00,
                     'price'      => 489.60,
                 ],
                 [
                     'key'        => 'duo_with_maps',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['best', 'bestus', 'big5', 'talents'],
                     'list_price' => 1609.70,
                     'price'      => 1287.24,
@@ -140,6 +154,8 @@ return [
             'variants'   => [
                 [
                     'key'        => 'default',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['big5single'],
                     'list_price' => 124.70,
                     'price'      => 99.70,
@@ -163,6 +179,8 @@ return [
             'variants'   => [
                 [
                     'key'        => 'default',
+                    'product_code'  => null, // código do produto na Hotmart
+                    'offer_code'    => null, // código da oferta (parâmetro ?off=)
                     'codenames'  => ['done'],
                     'list_price' => 112.40,
                     'price'      => 89.90,

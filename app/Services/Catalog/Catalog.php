@@ -58,6 +58,42 @@ class Catalog
     }
 
     /**
+     * Encontra a variante a partir do que a Hotmart manda no webhook.
+     *
+     * A ordem importa. O código da oferta é o identificador mais preciso: um
+     * mesmo produto na Hotmart pode ter várias ofertas, e cada uma corresponde
+     * a uma combinação diferente de bundles. Só caímos no código do produto
+     * quando a oferta não veio ou não bate com nada — e aí usamos a variante
+     * padrão, que é a recomendada.
+     *
+     * @return array{0: Product, 1: Variant}|null
+     */
+    public function resolveHotmart(?string $productCode, ?string $offerCode): ?array
+    {
+        foreach ($this->all() as $product) {
+            foreach ($product->variants as $variant) {
+                if ($offerCode && $variant->offerCode === $offerCode) {
+                    return [$product, $variant];
+                }
+            }
+        }
+
+        if (! $productCode) {
+            return null;
+        }
+
+        foreach ($this->all() as $product) {
+            foreach ($product->variants as $variant) {
+                if ($variant->productCode === $productCode) {
+                    return [$product, $product->defaultVariant()];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Codenames de bundles que estão soft-deleted na la-app. Vender um deles
      * gera compra sem itens, porque PurchaseService::registerPurchase() busca
      * os bundles sem withTrashed().

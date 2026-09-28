@@ -13,20 +13,33 @@ use Throwable;
 /**
  * Entrega a compra paga para a API da Life Academy, com retentativa.
  *
- * Roda em fila porque a resposta do webhook do Asaas não pode depender da API
- * da Life Academy estar de pé: se ela demorar ou falhar, o Asaas não deve
+ * Roda em fila porque a resposta do webhook da Hotmart não pode depender da API
+ * da Life Academy estar de pé: se ela demorar ou falhar, a Hotmart não deve
  * receber erro e ficar reenviando o mesmo evento.
  */
 class DeliverPurchaseToLifeAcademy implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
-    public function __construct(public readonly int $orderId) {}
+    /**
+     * @param  string  $intent  Estado que motivou a entrega (paid, refunded…).
+     *                          Entra na chave de unicidade: sem isso, uma
+     *                          revogação enfileirada enquanto a liberação do
+     *                          mesmo pedido ainda está na fila seria descartada
+     *                          como duplicata, e o acesso nunca seria cortado.
+     */
+    public function __construct(
+        public readonly int $orderId,
+        public readonly string $intent = 'paid',
+    ) {}
 
     public function uniqueId(): string
     {
-        return (string) $this->orderId;
+        return $this->orderId.':'.$this->intent;
     }
+
+    /** Solta o lock mesmo se o job morrer sem chamar failed(). */
+    public int $uniqueFor = 3600;
 
     public function tries(): int
     {

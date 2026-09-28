@@ -21,7 +21,7 @@ return [
     | Mantemos esse contrato para não precisar mexer na API: o site novo
     | monta um payload no mesmo formato e assina com o mesmo segredo.
     |
-    | 'endpoint' permite apontar para uma rota dedicada (ex.: /api/asaas/order)
+    | 'endpoint' permite apontar para uma rota dedicada (ex.: /api/hotmart/order)
     | caso um dia a API ganhe uma. O formato do corpo não muda.
     */
     'purchase' => [
@@ -39,7 +39,7 @@ return [
         | tabela woocommerce_purchases; o prefixo garante que os pedidos do
         | site novo nunca colidam com os IDs numéricos herdados do WooCommerce.
         */
-        'reference_prefix' => env('LA_REFERENCE_PREFIX', 'AS'),
+        'reference_prefix' => env('LA_REFERENCE_PREFIX', 'HM'),
 
         'timeout' => (int) env('LA_TIMEOUT', 30),
 

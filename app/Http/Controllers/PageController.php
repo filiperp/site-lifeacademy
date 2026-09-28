@@ -42,6 +42,18 @@ class PageController extends Controller
         return view('pages.about');
     }
 
+    /**
+     * Destino do "Página de obrigado" da oferta na Hotmart.
+     *
+     * Deliberadamente não afirma que a compra foi aprovada: qualquer um pode
+     * abrir esta URL, e boleto ou Pix podem levar minutos para compensar. Quem
+     * confirma é o webhook.
+     */
+    public function thanks(): View
+    {
+        return view('pages.thanks');
+    }
+
     public function forWhom(): View
     {
         return view('pages.for-whom');

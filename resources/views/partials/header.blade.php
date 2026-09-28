@@ -65,20 +65,6 @@
                     </div>
                 </div>
 
-                {{-- Carrinho --}}
-                <a href="{{ route('cart') }}" class="relative rounded-full p-2.5 text-navy-700 hover:bg-navy-50"
-                   aria-label="{{ __('site.nav.cart') }}">
-                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                        <path d="M2.5 2.5h1.8l1.9 9.5h8.6l1.7-6.7H5.2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="7.5" cy="16" r="1.25"/><circle cx="14.5" cy="16" r="1.25"/>
-                    </svg>
-                    @if (($cartCount ?? 0) > 0)
-                        <span class="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-ember-500 px-1 text-[11px] font-bold text-white">
-                            {{ $cartCount }}
-                        </span>
-                    @endif
-                </a>
-
                 <a href="{{ config('lifeacademy.app_url') }}" class="btn-outline hidden px-5 py-2.5 md:inline-flex">
                     {{ __('site.nav.login') }}
                 </a>

@@ -29,11 +29,11 @@ return new class extends Migration
             $table->decimal('total', 12, 2)->default(0);
             $table->string('currency', 3)->default('BRL');
 
-            // Asaas
-            $table->string('asaas_checkout_id')->nullable()->unique();
-            $table->text('asaas_checkout_url')->nullable();
-            $table->string('asaas_payment_id')->nullable()->index();
-            $table->string('asaas_customer_id')->nullable();
+            // Hotmart. A compra acontece no checkout deles e chega pelo
+            // webhook, então a transação é a chave natural do pedido.
+            $table->string('hotmart_transaction')->nullable()->unique();
+            $table->string('hotmart_product_code')->nullable()->index();
+            $table->string('hotmart_offer_code')->nullable()->index();
             $table->string('billing_type')->nullable();
             $table->unsignedSmallInteger('installment_count')->nullable();
             $table->decimal('installment_value', 12, 2)->nullable();
@@ -70,11 +70,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('asaas_webhook_events', function (Blueprint $table) {
+        Schema::create('hotmart_webhook_events', function (Blueprint $table) {
             $table->id();
+            // Id do evento quando a Hotmart manda um; senão evento+transação.
             $table->string('event_id')->unique();
-            $table->string('event');
-            $table->foreignId('order_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('event')->index();
+            $table->string('transaction')->nullable()->index();
             $table->json('payload');
             $table->timestamps();
         });
@@ -82,7 +83,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('asaas_webhook_events');
+        Schema::dropIfExists('hotmart_webhook_events');
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
     }

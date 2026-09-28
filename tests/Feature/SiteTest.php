@@ -28,7 +28,7 @@ class SiteTest extends TestCase
             'sobre'     => ['about', []],
             'para quem' => ['for-whom', []],
             'teste'     => ['free-test', []],
-            'carrinho'  => ['cart', []],
+            'obrigado'  => ['thanks', []],
             'privacidade' => ['legal', ['page' => 'privacy']],
             'conduta'     => ['legal', ['page' => 'conduct']],
             'reembolso'   => ['legal', ['page' => 'refund']],
@@ -148,24 +148,4 @@ class SiteTest extends TestCase
         $this->get(route('shop'))->assertDontSee('Rain Maker');
     }
 
-    public function test_carrinho_recusa_variante_inexistente(): void
-    {
-        $this->post(route('cart.add'), ['product' => 'big5', 'variant' => 'nao-existe'])
-            ->assertSessionHas('error');
-
-        $this->get(route('cart'))->assertSee(__('site.cart.empty'));
-    }
-
-    public function test_carrinho_soma_quantidades_e_desconto(): void
-    {
-        $this->post(route('cart.add'), ['product' => 'big5', 'variant' => 'default', 'quantity' => 2]);
-        $this->post(route('cart.add'), ['product' => 'talents', 'variant' => 'default']);
-
-        $cart = app(\App\Services\Cart\Cart::class);
-
-        $this->assertSame(3, $cart->count());
-        $this->assertEqualsWithDelta(693.10, $cart->subtotal(), 0.01);  // 247.70*2 + 197.70
-        $this->assertEqualsWithDelta(551.56, $cart->total(), 0.01);     // 197.00*2 + 157.56
-        $this->assertEqualsWithDelta(141.54, $cart->discount(), 0.01);
-    }
 }

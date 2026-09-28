@@ -66,15 +66,15 @@ class PurchaseGateway
             'id'                   => $order->lifeAcademyPurchaseId(),
             'number'               => $order->reference,
             'order_key'            => $order->lifeAcademyOrderKey(),
-            'status'               => 'completed',
+            'status'               => $this->statusFor($order),
             'currency'             => $order->currency,
             'date_created'         => $order->created_at?->toIso8601String(),
             'date_paid'            => $order->paid_at?->toIso8601String(),
             'total'                => $this->money($order->total),
             'discount_total'       => $this->money($order->discount),
-            'payment_method'       => 'asaas',
+            'payment_method'       => 'hotmart',
             'payment_method_title' => $this->paymentTitle($order),
-            'transaction_id'       => (string) ($order->asaas_payment_id ?? $order->asaas_checkout_id ?? ''),
+            'transaction_id'       => (string) ($order->hotmart_transaction ?? ''),
             'customer_id'          => 0,
             'billing' => [
                 'first_name' => $firstName,
@@ -95,17 +95,35 @@ class PurchaseGateway
             'meta_data' => [
                 ['key' => 'source',           'value' => 'site-lifeacademy'],
                 ['key' => 'trp_language',     'value' => $order->locale],
-                ['key' => 'asaas_checkout_id', 'value' => (string) $order->asaas_checkout_id],
-                ['key' => 'asaas_payment_id',  'value' => (string) $order->asaas_payment_id],
+                ['key' => 'hotmart_transaction',  'value' => (string) $order->hotmart_transaction],
+                ['key' => 'hotmart_offer_code',   'value' => (string) $order->hotmart_offer_code],
                 ['key' => 'installment_count', 'value' => (string) ($order->installment_count ?? 1)],
             ],
         ];
     }
 
+    /**
+     * Traduz o estado do pedido para o vocabulário que a la-app entende.
+     *
+     * WooCommerceController::webhook() processa COMPLETED e PROCESSING; trata
+     * CANCELLED, REFUNDED e afins chamando cancelPurchase(), que apaga a compra
+     * e revoga os tokens. É assim que um reembolso na Hotmart tira o acesso.
+     */
+    private function statusFor(Order $order): string
+    {
+        return match ($order->status) {
+            Order::STATUS_REFUNDED => 'refunded',
+            Order::STATUS_CANCELED => 'cancelled',
+            default                => 'completed',
+        };
+    }
+
     private function messageMeansSuccess(string $message): bool
     {
         return str_starts_with($message, 'Purchase processed')
-            || str_starts_with($message, 'Purchase Restored');
+            || str_starts_with($message, 'Purchase Restored')
+            // Resposta do ramo de cancelamento: a revogação também é sucesso.
+            || str_starts_with($message, 'Purchase Removed');
     }
 
     private function paymentTitle(Order $order): string
@@ -114,7 +132,7 @@ class PurchaseGateway
             'CREDIT_CARD' => 'Cartão de crédito',
             'PIX'         => 'Pix',
             'BOLETO'      => 'Boleto',
-            default       => 'Asaas',
+            default       => 'Hotmart',
         };
 
         if (($order->installment_count ?? 1) > 1) {

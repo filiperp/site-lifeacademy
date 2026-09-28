@@ -28,7 +28,6 @@
                 ['installments', 'M2.5 5h15v10h-15zM2.5 8.5h15'],
                 ['languages',    'M2.5 10h15M10 2.5a12 12 0 0 1 0 15 12 12 0 0 1 0-15Z'],
             ] as [$key, $icon])
-                @php $params = ['count' => config('asaas.installments.max')]; @endphp
                 <li class="flex gap-4">
                     <svg class="mt-0.5 h-6 w-6 shrink-0 text-ember-600" viewBox="0 0 20 20" fill="none"
                          stroke="currentColor" stroke-width="1.6" aria-hidden="true">
@@ -37,10 +36,10 @@
                     </svg>
                     <div>
                         <h2 class="text-sm font-semibold text-navy-950">
-                            {{ __("site.assurances.{$key}.title", $params) }}
+                            {{ __("site.assurances.{$key}.title") }}
                         </h2>
                         <p class="mt-1 text-sm leading-relaxed text-navy-600">
-                            {{ __("site.assurances.{$key}.body", $params) }}
+                            {{ __("site.assurances.{$key}.body") }}
                         </p>
                     </div>
                 </li>

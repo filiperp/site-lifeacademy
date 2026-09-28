@@ -61,11 +61,10 @@
 
                 {{-- ── Caixa de compra ──────────────────────────────────── --}}
                 <div class="lg:sticky lg:top-28 lg:self-start">
-                    <form method="POST" action="{{ route('cart.add') }}"
-                          x-data="{ variant: '{{ $default->key }}' }"
-                          class="rounded-3xl bg-white p-7 text-navy-950 shadow-lift-lg">
-                        @csrf
-                        <input type="hidden" name="product" value="{{ $product->key }}">
+                    {{-- A compra acontece no checkout da Hotmart; o site só
+                         escolhe para qual oferta mandar o cliente. --}}
+                    <div x-data="{ variant: '{{ $default->key }}' }"
+                         class="rounded-3xl bg-white p-7 text-navy-950 shadow-lift-lg">
 
                         @if ($product->hasVariants())
                             <fieldset>
@@ -106,17 +105,32 @@
                                 @endforeach
                             </div>
                         @else
-                            <input type="hidden" name="variant" value="{{ $default->key }}">
                             <x-price :variant="$default" size="lg" />
                         @endif
 
-                        <div class="mt-6 space-y-2.5">
-                            <button type="submit" name="buy_now" value="1" class="btn-primary w-full py-4 text-base">
-                                {{ __('site.product.buy_now') }}
-                            </button>
-                            <button type="submit" class="btn-outline w-full py-3.5">
-                                {{ __('site.product.add_to_cart') }}
-                            </button>
+                        {{-- Um botão por variante: cada oferta tem a própria URL
+                             na Hotmart. O Alpine mostra o da variante escolhida. --}}
+                        <div class="mt-6">
+                            @foreach ($variants as $v)
+                                <div x-show="variant === '{{ $v->key }}'" @if ($product->hasVariants()) x-cloak @endif>
+                                    @if ($v->isSellable())
+                                        <a href="{{ $v->checkoutUrl() }}"
+                                           class="btn-primary w-full py-4 text-base"
+                                           rel="noopener">
+                                            {{ __('site.product.buy') }}
+                                            <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                                <path d="M3 8h10m-4-4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                    @else
+                                        {{-- Oferta ainda não cadastrada na Hotmart: melhor
+                                             avisar do que mandar para um link quebrado. --}}
+                                        <button type="button" disabled class="btn-outline w-full py-4 text-base">
+                                            {{ __('site.product.unavailable') }}
+                                        </button>
+                                    @endif
+                                </div>
+                            @endforeach
                         </div>
 
                         <ul class="mt-6 space-y-2.5 border-t border-navy-100 pt-6 text-xs leading-relaxed text-navy-600">
@@ -130,7 +144,7 @@
                                 <svg class="h-4 w-4 shrink-0 text-navy-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                     <path d="M1.5 3.5h13v9h-13zM1.5 6.5h13" stroke-linejoin="round"/>
                                 </svg>
-                                {{ __('site.checkout.methods_note', ['count' => config('asaas.installments.max')]) }}
+                                {{ __('site.product.secure') }}
                             </li>
                             <li class="flex gap-2.5">
                                 <svg class="h-4 w-4 shrink-0 text-navy-500" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -139,7 +153,7 @@
                                 {{ __('site.product.instant') }}
                             </li>
                         </ul>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 # Runbook de segurança — webhook de compra
 
-Três pendências abertas na API (`la-app`, repositório separado). Todas exigem
-acesso ao servidor de produção `api.lifeacademy.pro`.
+Pendências que dependem de acesso externo. As três primeiras exigem o servidor
+de produção `api.lifeacademy.pro`; a quarta, o painel da Hotmart.
 
 O código já está corrigido e commitado (`61e59422` na `master` da `la-app`);
 o que falta é operação.
@@ -127,42 +127,40 @@ com string vazia e perder a venda em silêncio.
 
 ---
 
-## 4. Credenciais do Asaas
+## 4. Credenciais da Hotmart
 
-Bloqueado até haver acesso à plataforma.
+O Asaas saiu do projeto; o checkout passou a ser da Hotmart.
 
-Quando a chave chegar, no `.env` do site:
-
-```
-ASAAS_ENVIRONMENT=sandbox
-ASAAS_API_KEY=<Painel Asaas > Integrações > Chave de API>
-ASAAS_WEBHOOK_TOKEN=<você escolhe; o mesmo valor vai no painel>
-```
-
-Cadastre o webhook no painel do Asaas:
+Bloqueado até haver acesso ao painel. No `.env` do site:
 
 ```
-URL:     https://SEU-DOMINIO/webhooks/asaas
-Token:   igual ao ASAAS_WEBHOOK_TOKEN
-Versão:  v3
-Eventos: PAYMENT_CONFIRMED, PAYMENT_RECEIVED, PAYMENT_REFUNDED,
-         PAYMENT_DELETED, CHECKOUT_PAID, CHECKOUT_CANCELED, CHECKOUT_EXPIRED
+HOTMART_HOTTOK=<Painel > Ferramentas > Webhook>
+HOTMART_CLIENT_ID=<Hotmart Developers>
+HOTMART_CLIENT_SECRET=<Hotmart Developers>
+```
+
+Cadastre o webhook no painel:
+
+```
+URL:     https://SEU-DOMINIO/webhooks/hotmart
+Versão:  2.0.0
+Eventos: PURCHASE_APPROVED, PURCHASE_REFUNDED, PURCHASE_CHARGEBACK,
+         PURCHASE_CANCELED, PURCHASE_COMPLETE
 ```
 
 Valide sem precisar de uma compra real:
 
 ```sh
-php artisan integrations:check              # confere a configuração
-php artisan integrations:check --checkout   # cria um checkout de teste no sandbox
+php artisan integrations:check            # o que falta configurar e cadastrar
+php artisan integrations:check --token    # testa as credenciais da API
 ```
 
-O segundo devolve um link de pagamento do Asaas para abrir no navegador. Ele se
-recusa a rodar se o ambiente estiver em `production`.
+O "Enviar teste" do painel bate na rota e responde `test ok` sem criar pedido —
+o payload fica no log, que é como o formato real será confirmado.
 
-Só passe `ASAAS_ENVIRONMENT=production` depois de uma compra completa no
-sandbox, com o webhook chegando e o pedido virando `paid`.
-
----
+> O hottok é, para a Hotmart, o que o segredo do item 3 é para o WooCommerce:
+> a única coisa que separa uma venda real de um POST forjado numa rota que
+> libera acesso. Trate com o mesmo cuidado.
 
 ## Fora do escopo, mas do mesmo tipo
 
