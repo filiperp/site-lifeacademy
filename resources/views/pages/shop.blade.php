@@ -22,21 +22,30 @@
     </section>
 
     <section class="container-page pb-20">
-        <div class="reveal grid gap-6 rounded-4xl border border-navy-100 bg-navy-50/50 p-8 sm:grid-cols-3 sm:p-12">
+        <ul class="reveal grid gap-8 rounded-4xl border border-navy-100 bg-navy-50/50 p-8 sm:grid-cols-3 sm:p-12">
             @foreach ([
-                ['M10 2.5 3.75 5v4.5c0 3.6 2.5 6.6 6.25 8 3.75-1.4 6.25-4.4 6.25-8V5L10 2.5Z', __('site.product.guarantee')],
-                ['M3 5h14v10H3zM3 8h14', __('site.checkout.methods_note', ['count' => config('asaas.installments.max')])],
-                ['M2.5 10h15M10 2.5a12 12 0 0 1 0 15 12 12 0 0 1 0-15Z', __('site.faq.items.3.a')],
-            ] as [$icon, $text])
-                <div class="flex gap-4">
-                    <svg class="h-6 w-6 shrink-0 text-ember-500" viewBox="0 0 20 20" fill="none"
+                ['guarantee',    'M10 2.5 3.75 5v4.5c0 3.6 2.5 6.6 6.25 8 3.75-1.4 6.25-4.4 6.25-8V5L10 2.5Z'],
+                ['installments', 'M2.5 5h15v10h-15zM2.5 8.5h15'],
+                ['languages',    'M2.5 10h15M10 2.5a12 12 0 0 1 0 15 12 12 0 0 1 0-15Z'],
+            ] as [$key, $icon])
+                @php $params = ['count' => config('asaas.installments.max')]; @endphp
+                <li class="flex gap-4">
+                    <svg class="mt-0.5 h-6 w-6 shrink-0 text-ember-600" viewBox="0 0 20 20" fill="none"
                          stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                        <circle cx="10" cy="10" r="7.5" class="text-ember-200" stroke="currentColor" opacity=".45"/>
                         <path d="{{ $icon }}" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <p class="text-sm leading-relaxed text-navy-700">{{ \Illuminate\Support\Str::limit($text, 150) }}</p>
-                </div>
+                    <div>
+                        <h2 class="text-sm font-semibold text-navy-950">
+                            {{ __("site.assurances.{$key}.title", $params) }}
+                        </h2>
+                        <p class="mt-1 text-sm leading-relaxed text-navy-600">
+                            {{ __("site.assurances.{$key}.body", $params) }}
+                        </p>
+                    </div>
+                </li>
             @endforeach
-        </div>
+        </ul>
     </section>
 
 @endsection

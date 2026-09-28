@@ -161,6 +161,27 @@ return [
         ],
     ],
 
+    'payment' => [
+        'credit_card' => 'Tarjeta de crédito',
+        'pix'         => 'Pix',
+        'boleto'      => 'Boleto',
+    ],
+
+    'assurances' => [
+        'guarantee' => [
+            'title' => '15 días de garantía',
+            'body'  => 'Accede a todo, aplica el método y, si no es para ti, te devolvemos el 100%. Sin preguntas.',
+        ],
+        'installments' => [
+            'title' => 'Paga hasta en :count cuotas',
+            'body'  => 'Tarjeta de crédito, Pix o boleto. El pago lo procesa Asaas.',
+        ],
+        'languages' => [
+            'title' => 'Portugués, inglés y español',
+            'body'  => 'Evaluaciones, informes y videos en los tres idiomas. Eliges al empezar.',
+        ],
+    ],
+
     'product' => [
         'from'           => 'Desde',
         'choose_option'  => 'Elige una opción',

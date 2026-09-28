@@ -161,6 +161,27 @@ return [
         ],
     ],
 
+    'payment' => [
+        'credit_card' => 'Credit card',
+        'pix'         => 'Pix',
+        'boleto'      => 'Bank slip',
+    ],
+
+    'assurances' => [
+        'guarantee' => [
+            'title' => '15-day guarantee',
+            'body'  => 'Get full access, apply the method, and if it is not for you we refund every cent. No questions.',
+        ],
+        'installments' => [
+            'title' => 'Pay in up to :count instalments',
+            'body'  => 'Credit card, Pix or bank slip. Payment is processed by Asaas.',
+        ],
+        'languages' => [
+            'title' => 'Portuguese, English and Spanish',
+            'body'  => 'Assessments, reports and videos in all three. You choose when you start.',
+        ],
+    ],
+
     'product' => [
         'from'           => 'From',
         'choose_option'  => 'Choose an option',

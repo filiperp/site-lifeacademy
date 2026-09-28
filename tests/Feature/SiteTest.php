@@ -51,6 +51,37 @@ class SiteTest extends TestCase
         }
     }
 
+    /**
+     * Um `:count` que chega à tela significa que a view esqueceu de passar o
+     * parâmetro para __(). O erro é silencioso — a página responde 200 e só o
+     * texto sai errado — então vale varrer todas as rotas.
+     */
+    public function test_nenhuma_pagina_mostra_placeholder_de_traducao(): void
+    {
+        $placeholders = [':count', ':value', ':amount', ':percent', ':email', ':reference', ':privacy', ':refund', ':seconds', ':attribute'];
+
+        $urls = collect(self::pages())
+            ->map(fn (array $p) => route($p[0], $p[1]))
+            ->merge(app(Catalog::class)->all()->map(fn ($product) => $product->url()))
+            ->unique();
+
+        foreach (['pt_BR', 'en', 'es'] as $locale) {
+            $this->withSession(['locale' => $locale]);
+
+            foreach ($urls as $url) {
+                $html = $this->get($url)->assertOk()->getContent();
+
+                foreach ($placeholders as $placeholder) {
+                    $this->assertStringNotContainsString(
+                        $placeholder,
+                        $html,
+                        "Placeholder {$placeholder} não substituído em {$url} ({$locale})",
+                    );
+                }
+            }
+        }
+    }
+
     public function test_slug_desconhecido_da_404(): void
     {
         $this->get(route('product', 'nao-existe'))->assertNotFound();

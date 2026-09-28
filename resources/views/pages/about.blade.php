@@ -5,13 +5,13 @@
 
 @section('content')
 
-    <section class="relative overflow-hidden bg-navy-950 text-white">
+    <section class="on-dark relative overflow-hidden bg-navy-950 text-white">
         <div class="absolute inset-0 bg-grid opacity-60"></div>
         <div class="relative container-page py-20 sm:py-28">
             <div class="max-w-3xl">
                 <p class="eyebrow text-ember-400">{{ __('site.about.eyebrow') }}</p>
                 <h1 class="heading-xl mt-4 text-balance text-white">{{ __('site.about.title') }}</h1>
-                <p class="mt-7 text-lg leading-relaxed text-navy-200">{{ __('site.about.body') }}</p>
+                <p class="measure mt-7 text-lg leading-relaxed text-navy-200">{{ __('site.about.body') }}</p>
                 <p class="mt-5 text-2xl font-semibold text-white">{{ __('site.about.body_2') }}</p>
             </div>
         </div>

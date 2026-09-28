@@ -23,16 +23,23 @@
   --color-navy-900: #142850;
   --color-navy-950: #0d1a35;
 
+  /*
+   | A faixa clara (50–400) é usada sobre o navy escuro, onde é vibrante e
+   | legível. A faixa escura (600–900) carrega texto branco, então foi
+   | rebaixada até passar em WCAG AA: o laranja vivo original dava 2.56:1 com
+   | branco no botão principal — reprovado, e logo no elemento mais importante
+   | da página.
+   */
   --color-ember-50:  #fff8ed;
   --color-ember-100: #ffefd4;
   --color-ember-200: #ffdaa8;
   --color-ember-300: #ffbf71;
   --color-ember-400: #ff9a38;
-  --color-ember-500: #ff7d12;
-  --color-ember-600: #f06106;
-  --color-ember-700: #c74807;
-  --color-ember-800: #9e390e;
-  --color-ember-900: #7f310f;
+  --color-ember-500: #ed6a07; /* ícones e detalhes; não use com texto branco */
+  --color-ember-600: #c2410c; /* 5.18:1 com branco — fundo de botão */
+  --color-ember-700: #a3350a; /* 6.84:1 com branco — hover */
+  --color-ember-800: #852c0b;
+  --color-ember-900: #6b2409;
 
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Fraunces', ui-serif, Georgia, serif;
@@ -62,9 +69,44 @@
     @apply bg-navy-900 text-white;
   }
 
+  /* Anel de foco em duas camadas: o branco externo garante que o indicador
+     continue visível tanto sobre o navy escuro quanto sobre o laranja. */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-ember-500;
+    outline: 2px solid var(--color-ember-600);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.85);
   }
+
+  /* Sobre fundo escuro o anel inverte, senão some. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-ember-300);
+    box-shadow: 0 0 0 4px rgb(13 26 53 / 0.85);
+  }
+
+  /*
+   | Sem isto, tudo que o Alpine controla com x-show aparece durante o
+   | carregamento e some quando o JS sobe: o menu de idiomas abria sozinho e a
+   | página de produto exibia o preço de todas as variantes ao mesmo tempo.
+   */
+  [x-cloak] {
+    display: none !important;
+  }
+}
+
+/*
+| Medida de leitura. Texto corrido sem limite chega a 140 caracteres por linha
+| num monitor largo, e o olho perde o começo da linha seguinte. 65ch fica no
+| miolo da faixa confortável (45–75).
+|
+| Declarado como @utility, e não como classe em @layer components, porque o
+| Tailwind 4 só permite @apply de utilities registradas.
+*/
+@utility measure {
+  max-width: 65ch;
+}
+
+@utility measure-tight {
+  max-width: 52ch;
 }
 
 @layer components {
@@ -84,7 +126,7 @@
   }
 
   .btn-primary {
-    @apply bg-ember-500 text-white shadow-lift hover:bg-ember-600 hover:shadow-lift-lg active:translate-y-px;
+    @apply bg-ember-600 text-white shadow-lift hover:bg-ember-700 hover:shadow-lift-lg active:translate-y-px;
   }
 
   .btn-navy {
@@ -103,6 +145,7 @@
     @apply text-xs font-bold uppercase tracking-[0.18em] text-ember-600;
   }
 
+
   .heading-xl {
     @apply text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-6xl;
     font-family: var(--font-display);
@@ -119,12 +162,13 @@
   }
 
   .prose-site {
-    @apply text-base leading-relaxed text-navy-700;
+    @apply measure text-base leading-relaxed text-navy-700;
   }
 
+  /* placeholder em navy-500 (5.4:1); navy-300 dava 2.24:1 e sumia. */
   .field {
     @apply w-full rounded-xl border border-navy-200 bg-white px-4 py-3 text-navy-950
-           placeholder:text-navy-300 focus:border-navy-500 focus:ring-2 focus:ring-navy-100 focus:outline-none;
+           placeholder:text-navy-500 focus:border-navy-500 focus:ring-2 focus:ring-navy-100 focus:outline-none;
   }
 
   .field-error {

@@ -6,7 +6,7 @@
 @section('content')
 
     {{-- ── Hero ────────────────────────────────────────────────────────── --}}
-    <section class="relative overflow-hidden bg-navy-950 text-white">
+    <section class="on-dark relative overflow-hidden bg-navy-950 text-white">
         <div class="absolute inset-0">
             <img src="{{ asset('assets/img/life-acdemy-banner-desktop-01.webp') }}" alt=""
                  class="h-full w-full object-cover opacity-25" loading="eager" decoding="async">
@@ -22,7 +22,7 @@
                     {{ __('site.hero.title') }}
                 </h1>
 
-                <p class="mt-6 max-w-2xl text-lg leading-relaxed text-navy-200 sm:text-xl">
+                <p class="measure mt-6 text-lg leading-relaxed text-navy-200 sm:text-xl">
                     {{ __('site.hero.subtitle') }}
                 </p>
 
@@ -87,19 +87,19 @@
 
     {{-- ── Teste grátis ────────────────────────────────────────────────── --}}
     <section class="container-page">
-        <div class="reveal relative overflow-hidden rounded-4xl bg-gradient-to-br from-ember-500 to-ember-700 px-8 py-14 text-white sm:px-14 sm:py-20">
+        <div class="reveal relative overflow-hidden rounded-4xl bg-gradient-to-br from-ember-600 to-ember-800 px-8 py-14 text-white sm:px-14 sm:py-20">
             <div class="absolute inset-0 bg-grid opacity-40"></div>
             <div class="relative grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-center">
                 <div>
-                    <p class="text-xs font-bold tracking-[0.18em] text-ember-100 uppercase">{{ __('site.free_test.eyebrow') }}</p>
+                    <p class="text-xs font-bold tracking-[0.18em] text-ember-50 uppercase">{{ __('site.free_test.eyebrow') }}</p>
                     <h2 class="heading-md mt-3 text-balance text-white">{{ __('site.free_test.title') }}</h2>
-                    <p class="mt-5 max-w-xl text-base leading-relaxed text-ember-50">{{ __('site.free_test.subtitle') }}</p>
+                    <p class="measure mt-5 text-base leading-relaxed text-ember-50">{{ __('site.free_test.subtitle') }}</p>
                 </div>
                 <div class="lg:text-right">
                     <a href="{{ route('free-test') }}" class="btn bg-white px-8 py-4 text-base text-ember-700 shadow-lift hover:bg-ember-50">
                         {{ __('site.free_test.cta') }}
                     </a>
-                    <p class="mt-3 text-sm text-ember-100">{{ __('site.free_test.note') }}</p>
+                    <p class="mt-3 text-sm text-ember-50">{{ __('site.free_test.note') }}</p>
                 </div>
             </div>
         </div>
@@ -175,7 +175,7 @@
     </section>
 
     {{-- ── Depoimentos ─────────────────────────────────────────────────── --}}
-    <section class="bg-navy-950 py-20 text-white sm:py-28">
+    <section class="on-dark bg-navy-950 py-20 text-white sm:py-28">
         <div class="bg-grid">
             <div class="container-page">
                 <h2 class="heading-lg reveal max-w-2xl text-balance text-white">{{ __('site.testimonials.title') }}</h2>

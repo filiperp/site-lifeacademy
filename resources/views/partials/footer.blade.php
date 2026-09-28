@@ -2,7 +2,7 @@
     $catalog = app(\App\Services\Catalog\Catalog::class)->all()->take(5);
 @endphp
 
-<footer class="mt-24 bg-navy-950 text-navy-200">
+<footer class="on-dark mt-24 bg-navy-950 text-navy-200">
     <div class="bg-grid">
         <div class="container-page py-16">
 

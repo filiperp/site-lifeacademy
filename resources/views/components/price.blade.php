@@ -22,7 +22,7 @@
 
     @if ($variant->hasDiscount())
         <div class="flex items-center gap-2">
-            <span class="{{ $sizes['was'] }} text-navy-400 line-through">{{ Money::format($variant->listPrice) }}</span>
+            <span class="{{ $sizes['was'] }} text-navy-500 line-through">{{ Money::format($variant->listPrice) }}</span>
             <span class="rounded-full bg-ember-100 px-2 py-0.5 text-[11px] font-bold text-ember-700">
                 {{ __('site.product.off', ['percent' => round($variant->discountPercent())]) }}
             </span>

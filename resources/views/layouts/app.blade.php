@@ -11,6 +11,13 @@
     <link rel="icon" href="{{ asset('assets/img/BrasaoLA.webp') }}" type="image/webp">
     <link rel="canonical" href="{{ url()->current() }}">
 
+    {{-- O idioma vem da sessão, então a mesma URL serve os três. x-default
+         aponta para o português, que é o conteúdo de origem. --}}
+    @foreach (['pt_BR' => 'pt-BR', 'en' => 'en', 'es' => 'es'] as $code => $tag)
+        <link rel="alternate" hreflang="{{ $tag }}" href="{{ route('locale.switch', $code) }}">
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
+
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ __('site.brand') }}">
     <meta property="og:title" content="@yield('title', __('site.brand'))">

@@ -12,7 +12,7 @@
         $default = $product->defaultVariant();
     @endphp
 
-    <section class="relative overflow-hidden bg-navy-950 text-white">
+    <section class="on-dark relative overflow-hidden bg-navy-950 text-white">
         <div class="absolute inset-0">
             <img src="{{ $product->coverUrl() }}" alt="" class="h-full w-full object-cover opacity-20" loading="eager">
             <div class="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-950/93 to-navy-900/75"></div>
@@ -35,8 +35,8 @@
                     </span>
 
                     <h1 class="heading-xl mt-5 text-balance text-white">{{ $product->name() }}</h1>
-                    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-navy-200">{{ $product->tagline() }}</p>
-                    <p class="mt-6 max-w-2xl leading-relaxed text-navy-300">{{ $product->description() }}</p>
+                    <p class="measure mt-5 text-lg leading-relaxed text-navy-200">{{ $product->tagline() }}</p>
+                    <p class="measure mt-6 leading-relaxed text-navy-300">{{ $product->description() }}</p>
 
                     @if ($product->highlights())
                         <div class="mt-10">
@@ -84,7 +84,7 @@
                                                 <span class="mt-1 flex items-baseline gap-2">
                                                     <span class="text-base font-bold">{{ Money::format($v->price) }}</span>
                                                     @if ($v->hasDiscount())
-                                                        <span class="text-xs text-navy-400 line-through">{{ Money::format($v->listPrice) }}</span>
+                                                        <span class="text-xs text-navy-500 line-through">{{ Money::format($v->listPrice) }}</span>
                                                     @endif
                                                 </span>
                                                 @if ($v->recommended)

@@ -16,7 +16,13 @@
         <div class="mt-12 grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-14 lg:items-start">
 
             {{-- ── Formulário ───────────────────────────────────────────── --}}
-            <form method="POST" action="{{ route('checkout.store') }}" class="card p-7 sm:p-9">
+            {{-- `submitting` desabilita o botão no envio: criar o checkout no
+                 Asaas leva alguns segundos e um duplo clique geraria dois
+                 pedidos para a mesma compra. --}}
+            <form method="POST" action="{{ route('checkout.store') }}"
+                  x-data="{ submitting: false }"
+                  @submit="submitting = true"
+                  class="card p-7 sm:p-9">
                 @csrf
 
                 <h2 class="text-lg font-bold text-navy-950">{{ __('site.checkout.your_data') }}</h2>
@@ -56,31 +62,25 @@
                 <div class="mt-7 border-t border-navy-100 pt-7">
                     <h2 class="text-lg font-bold text-navy-950">{{ __('site.checkout.payment_methods') }}</h2>
 
-                    <div class="mt-4 flex flex-wrap gap-2.5">
+                    @php
+                        $methodIcons = [
+                            'CREDIT_CARD' => 'M1.5 3.5h13v9h-13zM1.5 6.5h13',
+                            'PIX'         => 'm8 1.5 6.5 6.5L8 14.5 1.5 8 8 1.5Z',
+                            'BOLETO'      => 'M2.5 2.5v11M5 2.5v11M7.5 2.5v11M10.5 2.5v11M13.5 2.5v11',
+                        ];
+                    @endphp
+
+                    <ul class="mt-4 flex flex-wrap gap-2.5">
                         @foreach (config('asaas.billing_types') as $type)
-                            <span class="inline-flex items-center gap-2 rounded-xl border border-navy-200 bg-navy-50/60 px-4 py-2.5 text-sm font-medium text-navy-800">
-                                @switch($type)
-                                    @case('CREDIT_CARD')
-                                        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                                            <path d="M1.5 3.5h13v9h-13zM1.5 6.5h13" stroke-linejoin="round"/>
-                                        </svg>
-                                        {{ __('site.checkout.payment_methods') === 'Payment methods' ? 'Credit card' : 'Cartão' }}
-                                        @break
-                                    @case('PIX')
-                                        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                                            <path d="m8 1.5 6.5 6.5L8 14.5 1.5 8 8 1.5Z" stroke-linejoin="round"/>
-                                        </svg>
-                                        Pix
-                                        @break
-                                    @default
-                                        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                                            <path d="M2.5 2.5v11M5 2.5v11M7.5 2.5v11M10.5 2.5v11M13.5 2.5v11"/>
-                                        </svg>
-                                        Boleto
-                                @endswitch
-                            </span>
+                            <li class="inline-flex items-center gap-2 rounded-xl border border-navy-200 bg-navy-50/60 px-4 py-2.5 text-sm font-medium text-navy-800">
+                                <svg class="h-4 w-4 text-navy-500" viewBox="0 0 16 16" fill="none"
+                                     stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                                    <path d="{{ $methodIcons[$type] ?? $methodIcons['BOLETO'] }}" stroke-linejoin="round"/>
+                                </svg>
+                                {{ __('site.payment.'.strtolower($type)) }}
+                            </li>
                         @endforeach
-                    </div>
+                    </ul>
 
                     @if (config('asaas.installments.enabled') && $maxInstallments > 1)
                         <p class="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
@@ -111,11 +111,21 @@
                     @error('terms') <p class="mt-1.5 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <button type="submit" class="btn-primary mt-7 w-full py-4 text-base">
-                    {{ __('site.checkout.submit') }}
-                    <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M3 8h10m-4-4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <button type="submit" class="btn-primary mt-7 w-full py-4 text-base"
+                        :disabled="submitting" :aria-busy="submitting">
+                    <span x-show="!submitting" class="inline-flex items-center gap-2">
+                        {{ __('site.checkout.submit') }}
+                        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M3 8h10m-4-4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span x-show="submitting" x-cloak class="inline-flex items-center gap-2">
+                        <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="2" opacity=".3"/>
+                            <path d="M14.5 8A6.5 6.5 0 0 0 8 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        {{ __('site.common.loading') }}
+                    </span>
                 </button>
 
                 <p class="mt-4 flex gap-2 text-xs leading-relaxed text-navy-500">

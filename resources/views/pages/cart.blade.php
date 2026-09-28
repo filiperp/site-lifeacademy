@@ -56,7 +56,7 @@
 
                                 <div class="shrink-0 text-right">
                                     @if ($line->savings() > 0)
-                                        <p class="text-sm text-navy-400 line-through">{{ Money::format($line->listSubtotal()) }}</p>
+                                        <p class="text-sm text-navy-500 line-through">{{ Money::format($line->listSubtotal()) }}</p>
                                     @endif
                                     <p class="text-lg font-bold text-navy-950">{{ Money::format($line->total()) }}</p>
                                 </div>
