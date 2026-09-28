@@ -21,6 +21,15 @@ class PurchaseGatewayTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Entregar sem segredo agora é erro, então os testes que exercitam a
+        // resposta da API precisam de um configurado.
+        config(['lifeacademy.purchase.webhook_secret' => 'segredo-de-teste']);
+    }
+
     /** Cópia de WooCommercePurchaseService::createCart(). */
     private function apiCreateCart(array $lineItems): array
     {
@@ -222,6 +231,25 @@ class PurchaseGatewayTest extends TestCase
 
         $this->assertFalse($result->ok);
         $this->assertSame(200, $result->status);
+    }
+
+    public function test_segredo_vazio_falha_alto_em_vez_de_assinar_errado(): void
+    {
+        config(['lifeacademy.purchase.webhook_secret' => '']);
+        Http::fake();
+
+        $order = $this->makeOrder([[
+            'product_key' => 'big5', 'variant_key' => 'default',
+            'name' => 'BIG5', 'codenames' => ['big5'], 'quantity' => 1,
+            'list_price' => 247.70, 'price' => 197.00, 'subtotal' => 247.70, 'total' => 197.00,
+        ]]);
+
+        // Assinar com string vazia faria a API recusar em silêncio, e a compra
+        // paga ficaria presa na fila até esgotar as tentativas.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('LA_WEBHOOK_SECRET');
+
+        app(PurchaseGateway::class)->deliver($order);
     }
 
     public function test_status_ignorado_pela_api_tambem_conta_como_falha(): void

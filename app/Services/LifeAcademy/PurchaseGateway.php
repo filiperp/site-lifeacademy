@@ -125,12 +125,24 @@ class PurchaseGateway
     }
 
     /**
-     * Mesmo cálculo de WooCommerceController::webhook():
+     * Mesmo cálculo do middleware da la-app:
      * base64(hmac_sha256(corpo_cru, segredo)).
+     *
+     * Falha alto quando o segredo está vazio. Sem isso a entrega seria assinada
+     * com string vazia, a API recusaria e a compra paga ficaria presa na fila
+     * até esgotar as tentativas — uma venda perdida em silêncio, justamente no
+     * momento em que o segredo é rotacionado e alguém esquece de atualizar aqui.
      */
     private function signature(string $json): string
     {
         $secret = (string) config('lifeacademy.purchase.webhook_secret');
+
+        if ($secret === '') {
+            throw new \RuntimeException(
+                'LA_WEBHOOK_SECRET está vazio: a compra não pode ser assinada. '
+                .'Defina o mesmo valor do WOOCOMMERCE_WEBHOOK_SECRET da la-app.'
+            );
+        }
 
         return base64_encode(hash_hmac('sha256', $json, $secret, true));
     }
