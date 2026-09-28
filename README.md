@@ -10,12 +10,21 @@ nenhuma alteração nela**.
 
 ## Como rodar
 
+Requer PHP 8.3+, Composer e Node 20+.
+
 ```sh
+# vendor/ e node_modules/ não vão para o git; num checkout novo estes dois
+# primeiros passos são obrigatórios — sem eles o artisan nem carrega.
+composer install
+npm install
+
 cp .env.example .env
 php artisan key:generate
+
 touch database/database.sqlite
 php artisan migrate
-npm install && npm run build
+
+npm run build
 php artisan serve
 ```
 
